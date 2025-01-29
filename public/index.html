@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta API Guardian</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="HoruxLogo.png" alt="Horux Logo" style="float: left; margin-right: 10px;">
+        <h1>Consulta API Guardian</h1>
+    </header>
+    <div class="container" style="display: none;">
+        <div class="section">
+            <h2>Obtener Eventos</h2>
+            <div class="form-group">    
+                <div class="filtro">
+                    <label for="nombreCuenta">Nombre de Cuenta:</label>
+                    <input type="text" id="nombreCuenta">
+                </div>
+                <div class="filtro">
+                    <label for="nombreFlota">Nombre de Flota:</label>
+                    <input type="text" id="nombreFlota">
+                </div>
+                <div class="filtro">
+                    <label for="patente">Patente:</label>
+                    <input type="text" id="patente">
+                </div>
+                <div class="filtro">
+                    <label for="GuardianID">Guardian ID:</label>
+                    <input type="text" id="GuardianID">
+                </div>
+                <div class="filtro">
+                    <label for="fechaDesde">Fecha Desde:</label>
+                    <input type="datetime-local" id="fechaDesde">
+                </div>
+                <div class="filtro">
+                    <label for="fechaHasta">Fecha Hasta:</label>
+                    <input type="datetime-local" id="fechaHasta">
+                </div>
+            </div>
+            <div class="results" id="results-Eventos" style="display: none"></div>
+            <button onclick="consultarEventos()">Consultar Eventos</button>
+        </div>
+        <div class="section">
+            <h2>Obtener Estados</h2>
+            <div class="form-group3">    
+                <label for="nombreCuenta-estado">Nombre de Cuenta:</label>
+                <input type="text" id="nombreCuenta-estado">
+                <label for="nombreFlota-estado">Nombre de Flota:</label>
+                <input type="text" id="nombreFlota-estado">
+                <label for="patente-estado">Patente:</label>
+                <input type="text" id="patente-estado">
+            </div>
+            <div class="results" id="results-Estados" style="display: none"></div>
+            <button onclick="consultarGuardianEstado()">Consultar Estados</button>
+        </div>
+    </div>
+
+    <div id="loading" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="login-section">
+        <h2>Iniciar Sesión</h2>
+        <div class="form-group2">
+            <label for="email">Correo Electrónico:</label>
+            <input type="email" id="email">
+        </div>
+        <div class="form-group2">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password">
+        </div>
+        <button onclick="iniciarSesion()">Iniciar Sesión</button>
+    </div>
+
+    <script>
+        async function iniciarSesion() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            showLoading();
+            const response = await fetch('/iniciarSesion', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            await new Promise(resolve => setTimeout(resolve, 800));
+            if (data.success) {
+                hideLoading()
+                localStorage.setItem('sessionId', data.sessionId);
+                document.querySelector('.container').style.display = 'block';
+                document.querySelector('.login-section').style.display = 'none';
+                await new Promise(resolve => setTimeout(resolve, 20));
+                alert('Sesión iniciada con éxito');
+
+            } else {
+                hideLoading()
+                await new Promise(resolve => setTimeout(resolve, 10));
+                alert('Credenciales Invalidas');
+            }
+        }
+
+        function showLoading() {
+        document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+        }
+
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+        document.getElementById('fechaDesde').value = today.toISOString().slice(0, 16);
+        document.getElementById('fechaHasta').value = new Date().toISOString().slice(0, 16);
+
+        async function consultarEventos() {
+            const sessionId = localStorage.getItem('sessionId');
+            const fechaHoraDesde = document.getElementById('fechaDesde').value;
+            const fechaHoraHasta = document.getElementById('fechaHasta').value;
+            const fechaHoraDesdeFormatted = fechaHoraDesde ? `${fechaHoraDesde}:00` : '';
+            const fechaHoraHastaFormatted = fechaHoraHasta ? `${fechaHoraHasta}:00` : '';
+
+            showLoading();
+            try {
+                const response = await fetch('/consultarEvent', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    'SOAPAction': 'http://sm.sbox.cl/webservice/server.php'
+                    },
+                    body: JSON.stringify({sessionId, fechaHoraDesdeFormatted, fechaHoraHastaFormatted })
+                });
+
+                const data = await response.json();
+                if (!data.sessionId){
+                    alert('No autorizado')
+                }
+                mostrarResultadosEventos(data);
+                }finally {
+            hideLoading();
+            }
+        }
+
+        async function consultarGuardianEstado() {
+            const sessionId = localStorage.getItem('sessionId');
+            showLoading();
+            try {
+            const response = await fetch('/consultarGuardianEstado', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                'SOAPAction': 'http://sm.sbox.cl/webservice/serverGuardian.php'
+                },
+                body: JSON.stringify({sessionId})
+            });
+            const data = await response.json();
+            if (!data.sessionId){
+                alert('No autorizado')
+            }
+            mostrarResultadosEstado(data);
+            } finally {
+            hideLoading();
+            }
+        }
+
+        function mostrarResultadosEstado(data) {
+            const resultsDiv = document.getElementById('results-Estados');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+
+            const nombreCuentaInput = document.getElementById('nombreCuenta-estado').value;
+            const nombreFlotaInput = document.getElementById('nombreFlota-estado').value;
+            const nombrePatente = document.getElementById('patente-estado').value;
+
+            data.forEach((item, index) => {
+                if (item.agregadoDiario.account.name.toLowerCase().trim().toLowerCase().includes(nombreCuentaInput.trim().toLowerCase()) 
+                    && item.agregadoDiario.fleet.name.toString().trim().toLowerCase().includes(nombreFlotaInput.trim().toLowerCase())
+                    && item.agregadoDiario.vehicle.name.toString().trim().toLowerCase().includes(nombrePatente.trim().toLowerCase())) {
+
+                    const div = document.createElement('div');
+                    div.className = `result-item ${index % 2 === 0 ? 'par' : 'impar'}`;
+                    div.innerHTML = `
+                        <p><strong>Patente:</strong> ${item.agregadoDiario.vehicle.name}</p>
+                        <p><strong>Cuenta:</strong> ${item.agregadoDiario.account.name}</p>
+                        <p><strong>Flota:</strong> ${item.agregadoDiario.fleet.name}</p>
+                        <p><strong>Patente:</strong> ${item.patente}</p>
+                        <p><strong>Heartbeat:</strong> ${item.heartbeat}</p>
+                        <p><strong>Estado del Sensor:</strong></p>
+                        <ul>
+                            <li>Authentication Failure: ${item.estadoSensor.authenticationFailure}</li>
+                            <li>Camera Detected: ${item.estadoSensor.cameraDetected}</li>
+                            <li>CPU Load OK: ${item.estadoSensor.cpuLoadOk}</li>
+                            <li>GPS Detected: ${item.estadoSensor.gpsDetected}</li>
+                            <li>Temperature: ${item.estadoSensor.temperature}°C</li>
+                        </ul>
+                        <p><strong>Localización:</strong></p>
+                        <ul>
+                            <li>Latitud: ${item.localizacion.latitude}</li>
+                            <li>Longitud: ${item.localizacion.longitude}</li>
+                            <li>Velocidad: ${item.localizacion.speedMps} m/s</li>
+                        </ul>
+                        <p><strong>Fecha Agregado:</strong> ${item.fechaAgregado}</p>
+                        <p><strong>Fecha y Hora de Generación del Agregado (UTC):</strong> ${item.fechaHoraGeneracionAgregadoUTC}</p>
+                    `;
+                    resultsDiv.appendChild(div);
+                }    
+            });
+        }
+
+        function mostrarResultadosEventos(data) {
+            const resultsDiv = document.getElementById('results-Eventos');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+            const nombreCuentaInput = document.getElementById('nombreCuenta').value;
+            const nombreFlotaInput = document.getElementById('nombreFlota').value;
+            const nombrePatente = document.getElementById('patente').value ;
+            const nombreId = document.getElementById('GuardianID').value;
+
+            data.forEach((item, index) => {
+                if (item.guardianEvent.account.name.trim().toLowerCase().includes(nombreCuentaInput.trim().toLowerCase()) 
+                && item.guardianEvent.fleet.name.trim().toLowerCase().includes(nombreFlotaInput.trim().toLowerCase())
+                && item.guardianEvent.vehicle.id.toString().trim().toLowerCase().includes(nombrePatente.trim().toLowerCase())
+                && item.guardianEvent.id.toString().trim().toLowerCase().includes(nombreId.trim().toLowerCase())) {
+            
+
+                    const div = document.createElement('div');
+                    div.className = `result-item ${index % 2 === 0 ? 'par' : 'impar'}`;
+                    div.innerHTML = `
+                    <p><strong>Patente:</strong> ${item.guardianEvent.vehicle.id}</p>
+                    <p><strong>Cuenta:</strong> ${item.guardianEvent.account.name}</p>
+                    <p><strong>Flota:</strong> ${item.guardianEvent.fleet.name}</p>
+                    <p><strong>GUARDIAN ID:</strong> ${item.guardianEvent.id}</p>
+                    <p><strong>Tipo de item:</strong> ${item.guardianEvent.eventType.labels.join(', ')}</p>
+                    <p><strong>Fecha del item:</strong> ${item.guardianEvent.eventTimeUtc}</p>
+                    <p><strong>Velocidad:</strong> ${item.guardianEvent.speedMps} m/s</p>
+                    <p><strong>Ubicación:</strong> Latitud: ${item.guardianEvent.detectionFrame.location.latitude}, Longitud: ${item.guardianEvent.detectionFrame.location.longitude}</p>
+                    <p><strong>Video:</strong> <a href="${item.guardianEvent.media[0].url}" target="_blank">Ver Video</a></p>
+                    `;
+                    resultsDiv.appendChild(div);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
