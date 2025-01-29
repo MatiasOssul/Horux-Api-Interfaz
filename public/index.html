@@ -138,6 +138,7 @@
                 });
 
                 const data = await response.json();
+                await new Promise(resolve => setTimeout(resolve, 30));
                 if (!data.sessionId){
                     alert('No autorizado')
                 }
@@ -160,6 +161,7 @@
                 body: JSON.stringify({sessionId})
             });
             const data = await response.json();
+            await new Promise(resolve => setTimeout(resolve, 30));
             if (!data.sessionId){
                 alert('No autorizado')
             }
