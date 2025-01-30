@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M2MDataGlobal API Interface</title>
+    <link rel="stylesheet" href="sims.css">
+</head>
+<body>
+    <header>
+        <img src="HoruxLogo.png" alt="Horux Logo" class="header-img">
+        <h1 class="header-title">M2MDataGlobal API Integrado</h1>
+        <button class="volver_button" onclick="window.location.href='index.html'">Ir Guardian</button>
+    </header>
+
+    <div class="container">
+
+        <div class="section">
+            <h2>Obtener Todas las SIMs</h2>
+            <form id="sim-form">
+                <div class="form-group">
+                    <label for="filter">Filtrar por Estado:</label>
+                    <select id="todo-filter-estado">
+                        <option value="Todas">Todas</option>
+                        <option value="ACTIVATED">ACTIVATED</option>
+                        <option value="DEACTIVATED">DEACTIVATED</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="todo-value">Filtar por consumo:</label>
+                    <select id="todo-filter-consumo">
+                        <option value="Todas">Todas</option>
+                        <option value="Sin consumo">Sin consumo</option>
+                        <option value="Con consumo">Con consumo</option>
+                    </select>    
+                </div>    
+
+            <button type="button" onclick="fetchSIMS()">Buscar</button>
+            <div id="sims-response" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h2>Consultar SIMs</h2>
+            <form id="sim-form">
+                <div class="form-group">
+                    <label for="filter">Buscar por:</label>
+                    <select id="filter">
+                        <option value="icc">ICC</option>
+                        <option value="imei">IMEI</option>
+                        <option value="msisdn">MSISDN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="value">Valor:</label>
+                    <input type="text" id="value" placeholder="Ingresa el valor">
+                </div>
+                <button type="button" onclick="fetchSIMDetails()">Buscar</button>
+            </form>
+
+            <div id="response" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h2>Test GSM</h2>
+            <form id="sim-form">
+                <div class="form-group">
+                    <label for="GSM-filter">Buscar por:</label>
+                    <select id="GSM-filter">
+                        <option value="icc">ICC</option>
+                        <option value="imei">IMEI</option>
+                        <option value="msisdn">MSISDN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="GSM-value">Valor:</label>
+                    <input type="text" id="GSM-value" placeholder="Ingresa el valor">
+                </div>
+                <button type="button" onclick="GsmTestRun()">Realizar Test</button>
+            </form>
+
+            <div id="GSM-response" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h2>Test GPRS</h2>
+            <form id="sim-form">
+                <div class="form-group">
+                    <label for="GPRS-filter">Buscar por:</label>
+                    <select id="GPRS-filter">
+                        <option value="icc">ICC</option>
+                        <option value="imei">IMEI</option>
+                        <option value="msisdn">MSISDN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="GPRS-value">Valor:</label>
+                    <input type="text" id="GPRS-value" placeholder="Ingresa el valor">
+                </div>
+                <button type="button" onclick="GPRSTestRun()">Realizar Test</button>
+            </form>
+
+            <div id="GPRS-response" class="response" style="display: none;"></div>
+        </div>    
+
+        
+        <div class="section">
+            <h2>Resetear Simcard</h2>
+            <form id="sim-form">
+                <div class="form-group">
+                    <label for="Reset-filter">Buscar por:</label>
+                    <select id="Reset-filter">
+                        <option value="icc">ICC</option>
+                        <option value="imei">IMEI</option>
+                        <option value="msisdn">MSISDN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="Reset-value">Valor:</label>
+                    <input type="text" id="Reset-value" placeholder="Ingresa el valor">
+                </div>
+                <button type="button" onclick="ResetSimcard()">Resetear</button>
+            </form>
+
+            <div id="Reset-response" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <h2>Enviar SMS</h2>
+            <form id="sms-form">
+                <div class="form-group">
+                    <label for="filter">Buscar por:</label>
+                    <select id="filter-sms">
+                        <option value="icc">ICC</option>
+                        <option value="imei">IMEI</option>
+                        <option value="msisdn">MSISDN</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sms-value">Valor:</label>
+                    <input type="text" id="sms-value" placeholder="Ingresa el valor">
+                </div>
+                <div class="form-group">
+                    <label for="sms-message">Mensaje:</label>
+                    <input type="text" id="sms-message" placeholder="Texto del mensaje">
+                </div>
+                <button type="button" onclick="sendSMS()">Enviar SMS</button>
+            </form>
+
+            <div id="sms-response" class="response" style="display: none;"></div>
+        </div>    
+    </div>
+
+    <div id="loading" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        async function fetchSIMS() {
+            const sessionId = localStorage.getItem('sessionId');
+            const responseDiv = document.getElementById('sims-response');
+            const filterEstado = document.getElementById('todo-filter-estado').value;
+            const filterConsumo = document.getElementById('todo-filter-consumo').value;
+            
+            showLoading();
+            try {
+            const response = await fetch('/fetchSimList', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sessionId })
+            });
+
+            const data = await response.json();
+            if (filterEstado !== 'Todas') {
+                data.data = data.data.filter(item => item.simCycleState === filterEstado);
+            }
+            if (filterConsumo !== 'Todas') {
+                if (filterConsumo === 'Sin consumo') {
+                data.data = data.data.filter(item => item.consumptionMonthlyData === "0");
+                }
+                if (filterConsumo === 'Con consumo') {
+                data.data = data.data.filter(item => item.consumptionMonthlyData > "0");
+                }    
+            }
+            data.total = data.data.length;
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+            hideLoading();
+            }
+        }
+
+        async function fetchSIMDetails() {
+            const sessionId = localStorage.getItem('sessionId');
+            const filter = document.getElementById('filter').value;
+            const value = document.getElementById('value').value;
+            const responseDiv = document.getElementById('response');
+            
+            showLoading();
+            try {
+            const response = await fetch('/fetchSimDetails', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sessionId, filter, value })
+            });
+
+            const data = await response.json();
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+            hideLoading();
+            }
+        }
+
+        async function GsmTestRun() {
+            const sessionId = localStorage.getItem('sessionId');
+            const filter = document.getElementById('GSM-filter').value;
+            const value = document.getElementById('GSM-value').value;
+            const responseDiv = document.getElementById('GSM-response');
+            
+            showLoading();
+            try {
+            const response = await fetch('/testGsm', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sessionId, filter, value })
+            });
+
+            const data = await response.json();
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+            hideLoading();
+            }
+        }
+
+        async function GPRSTestRun() {
+            const sessionId = localStorage.getItem('sessionId');
+            const filter = document.getElementById('GPRS-filter').value;
+            const value = document.getElementById('GPRS-value').value;
+            const responseDiv = document.getElementById('GPRS-response');
+            
+            showLoading();
+            try {
+            const response = await fetch('/testGprs', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sessionId, filter, value })
+            });
+
+            const data = await response.json();
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+            hideLoading();
+            }
+        }
+
+        async function ResetSimcard() {
+            const sessionId = localStorage.getItem('sessionId');
+            const filter = document.getElementById('Reset-filter').value;
+            const value = document.getElementById('Reset-value').value;
+            const responseDiv = document.getElementById('Reset-response');
+            
+            showLoading();
+            try {
+            const response = await fetch('/resetSimcard', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sessionId, filter, value })
+            });
+
+            const data = await response.json();
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+            responseDiv.style.display = 'block';
+            responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+            hideLoading();
+            }
+        }
+
+        async function sendSMS() {
+            const sessionId = localStorage.getItem('sessionId');
+            const filter = document.getElementById('filter-sms').value;
+            const value = document.getElementById('sms-value').value;
+            const message = document.getElementById('sms-message').value;
+            const smsResponseDiv = document.getElementById('sms-response');
+
+            showLoading();
+            try {
+            const response = await fetch('/sendSMS', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sessionId, filter, value, message })
+            });
+
+            const data = await response.json();
+            smsResponseDiv.style.display = 'block';
+            smsResponseDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+            smsResponseDiv.style.display = 'block';
+            smsResponseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+            hideLoading();
+            }
+        }
+    </script>
+</body>
+</html>

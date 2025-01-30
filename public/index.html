@@ -10,6 +10,7 @@
     <header>
         <img src="HoruxLogo.png" alt="Horux Logo" class="header-img">
         <h1 class="header-title">Consulta API Guardian</h1>
+        <button class="volver_button" onclick="window.location.href='sims.html'" style="display: none;">Ir a Sims</button>
     </header>
     <div class="container" style="display: none;">
         <div class="section">
@@ -76,6 +77,35 @@
     </div>
 
     <script>
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const sessionId = localStorage.getItem('sessionId');
+            if (sessionId) {
+            showLoading();
+            try {
+                const response = await fetch('/validateSession', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sessionId })
+                });
+                const data = await response.json();
+                if (data.valid) {
+                document.querySelector('.login-section').style.display = 'none';
+                document.querySelector('.volver_button').style.display = 'block';
+                document.querySelector('.container').style.display = 'block';
+                } else {
+                localStorage.removeItem('sessionId');
+                }
+            } catch (error) {
+                console.error('Error validating session:', error);
+            } finally {
+                hideLoading();
+            }
+            }
+        });
+
         async function iniciarSesion() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -95,6 +125,7 @@
                 hideLoading()
                 localStorage.setItem('sessionId', data.sessionId);
                 document.querySelector('.container').style.display = 'block';
+                document.querySelector('.volver_button').style.display = 'block'
                 document.querySelector('.login-section').style.display = 'none';
                 await new Promise(resolve => setTimeout(resolve, 20));
                 alert('Sesión iniciada con éxito');
@@ -227,12 +258,13 @@
                     const div = document.createElement('div');
                     div.className = `result-item ${index % 2 === 0 ? 'par' : 'impar'}`;
                     div.innerHTML = `
-                    <p><strong>Patente:</strong> ${item.guardianEvent.vehicle.id}</p>
+                    <p><strong>Patente:</strong> ${item.guardianEvent.vehicle.name}</p>
+                    <p><strong>ID Vehiculo:</strong> ${item.guardianEvent.vehicle.id}</p>
                     <p><strong>Cuenta:</strong> ${item.guardianEvent.account.name}</p>
                     <p><strong>Flota:</strong> ${item.guardianEvent.fleet.name}</p>
                     <p><strong>GUARDIAN ID:</strong> ${item.guardianEvent.id}</p>
                     <p><strong>Tipo de item:</strong> ${item.guardianEvent.eventType.labels.join(', ')}</p>
-                    <p><strong>Fecha del item:</strong> ${item.guardianEvent.eventTimeUtc}</p>
+                    <p><strong>Fecha del item:</strong> ${item.guardianEvent.eventTimeUtc} (UTC)</p>
                     <p><strong>Velocidad:</strong> ${item.guardianEvent.speedMps} m/s</p>
                     <p><strong>Ubicación:</strong> Latitud: ${item.guardianEvent.detectionFrame.location.latitude}, Longitud: ${item.guardianEvent.detectionFrame.location.longitude}</p>
                     <p><strong>Video:</strong> <a href="${item.guardianEvent.media[0].url}" target="_blank">Ver Video</a></p>

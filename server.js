@@ -96,6 +96,195 @@ app.post('/consultarGuardianEstado', (req, res) => {
     });
 });
 
+app.post('/fetchSimList', async (req, res) => {
+    const { sessionId } = req.body;
+    const API_BASE = process.env.API_BASE;
+    const TOKEN = process.env.TOKEN;
+
+    if (sessions[sessionId]) {
+        try {
+            const response = await fetch(`${API_BASE}/simList`, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': TOKEN,
+                }
+            });
+
+            if (!response.ok) {
+                res.status(response.status).send({ error: 'Error en la solicitud a la API externa' });
+                return;
+            }
+
+            const data = await response.json();
+            res.send(data);
+        } catch (error) {
+            res.status(500).send({ error: 'Error al realizar la solicitud' });
+        }
+    } else {
+        res.status(401).json({ error: 'No autorizado' });
+    }
+});
+
+app.post('/fetchSimDetails', async (req, res) => {
+    const { sessionId, filter, value } = req.body;  
+    const API_BASE = process.env.API_BASE;
+    const TOKEN = process.env.TOKEN;
+
+    if (sessions[sessionId]) {
+        try {
+            const response = await fetch(`${API_BASE}/simDetails/${filter}/${value}`, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': TOKEN,
+                }
+            });
+
+            if (!response.ok) {
+                res.status(response.status).send({ error: 'Error en la solicitud a la API externa' });
+                return;
+            }
+
+            const data = await response.json();
+            res.send(data);
+        } catch (error) {
+            res.status(500).send({ error: 'Error al realizar la solicitud' });
+        }
+    } else {
+        res.status(401).json({ error: 'No autorizado' });
+    }
+});
+
+app.post('/testGsm', async (req, res) => {
+    const { sessionId, filter, value } = req.body;
+    const API_BASE = process.env.API_BASE;
+    const TOKEN = process.env.TOKEN;
+
+    if (sessions[sessionId]) {
+        try {
+            const response = await fetch(`${API_BASE}/testGsm/${filter}/${value}`, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': TOKEN,
+                }
+            });
+
+            if (!response.ok) {
+                res.status(response.status).send({ error: 'Error en la solicitud a la API externa' });
+                return;
+            }
+
+            const data = await response.json();
+            res.send(data);
+        } catch (error) {
+            res.status(500).send({ error: 'Error al realizar la solicitud' });
+        }
+    } else {
+        res.status(401).json({ error: 'No autorizado' });
+    }
+});
+
+app.post('/testGprs', async (req, res) => {
+    const { sessionId, filter, value } = req.body;
+    const API_BASE = process.env.API_BASE;
+    const TOKEN = process.env.TOKEN;
+
+    if (sessions[sessionId]) {
+        try {
+            const response = await fetch(`${API_BASE}/testGprs/${filter}/${value}`, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': TOKEN,
+                }
+            });
+
+            if (!response.ok) {
+                res.status(response.status).send({ error: 'Error en la solicitud a la API externa' });
+                return;
+            }
+
+            const data = await response.json();
+            res.send(data);
+        } catch (error) {
+            res.status(500).send({ error: 'Error al realizar la solicitud' });
+        }
+    } else {
+        res.status(401).json({ error: 'No autorizado' });
+    }
+});
+
+app.post('/resetSimcard', async (req, res) => {
+    const { sessionId, filter, value } = req.body;
+    const API_BASE = process.env.API_BASE;
+    const TOKEN = process.env.TOKEN;
+
+    if (sessions[sessionId]) {
+        try {
+            const response = await fetch(`${API_BASE}/reset/${filter}/${value}`, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': TOKEN,
+                }
+            });
+
+            if (!response.ok) {
+                res.status(response.status).send({ error: 'Error en la solicitud a la API externa' });
+                return;
+            }
+
+            const data = await response.json();
+            res.send(data);
+        } catch (error) {
+            res.status(500).send({ error: 'Error al realizar la solicitud' });
+        }
+    } else {
+        res.status(401).json({ error: 'No autorizado' });
+    }
+});
+
+app.post('/sendSMS', async (req, res) => {
+    const { sessionId, filter, value, message } = req.body;
+    const API_BASE = process.env.API_BASE;
+    const TOKEN = process.env.TOKEN;
+
+    if (sessions[sessionId]) {
+        try {
+            const response = await fetch(`${API_BASE}/sms/${filter}/${value}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-KEY': TOKEN,
+                },
+                body: JSON.stringify({ message })
+            });
+
+            if (!response.ok) {
+                res.status(response.status).send({ error: 'Error en la solicitud a la API externa' });
+                return;
+            }
+
+            const data = await response.json();
+            res.send(data);
+        } catch (error) {
+            res.status(500).send({ error: 'Error al realizar la solicitud' });
+        }
+    } else {
+        res.status(401).json({ error: 'No autorizado' });
+    }
+});
+
+function isValidSession(sessionId) {
+    return sessions.hasOwnProperty(sessionId);
+}
+
+app.post('/validateSession', (req, res) => {
+    const { sessionId } = req.body;
+    if (isValidSession(sessionId)) {
+        res.send({ valid: true });
+    } else {
+        res.status(401).send({ valid: false });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
