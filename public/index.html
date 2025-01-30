@@ -8,8 +8,8 @@
 </head>
 <body>
     <header>
-        <img src="HoruxLogo.png" alt="Horux Logo" style="float: left; margin-right: 10px;">
-        <h1>Consulta API Guardian</h1>
+        <img src="HoruxLogo.png" alt="Horux Logo" class="header-img">
+        <h1 class="header-title">Consulta API Guardian</h1>
     </header>
     <div class="container" style="display: none;">
         <div class="section">
@@ -173,7 +173,8 @@
             const nombrePatente = document.getElementById('patente-estado').value;
 
             data.forEach((item, index) => {
-                if (item.agregadoDiario.account.name.toLowerCase().trim().toLowerCase().includes(nombreCuentaInput.trim().toLowerCase()) 
+                if (item.agregadoDiario && item.agregadoDiario.account && item.agregadoDiario.fleet && item.agregadoDiario.vehicle &&
+                    item.agregadoDiario.account.name.toLowerCase().trim().toLowerCase().includes(nombreCuentaInput.trim().toLowerCase()) 
                     && item.agregadoDiario.fleet.name.toString().trim().toLowerCase().includes(nombreFlotaInput.trim().toLowerCase())
                     && item.agregadoDiario.vehicle.name.toString().trim().toLowerCase().includes(nombrePatente.trim().toLowerCase())) {
 

@@ -4,30 +4,44 @@ body {
     padding: 0;
     background-color: #333333;
 }
+
 header {
-    background-color: #F5F5F5;
-    color: #605b5a;
-    padding: 1rem;
-    line-height: 80px;
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    position: relative;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #F5F5F5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-header img {
-    max-height: 75px;
-    max-width:min-content;
-    position: absolute;
-    left: 0;
-    padding: 1rem;
-    object-fit: contain;
-    width: auto;
-    vertical-align: middle;
+.header-img {
+    max-width: 15rem;
+    height: auto;
+    margin-right: 10px;
 }
 
-header h1 {
-    margin: 0 auto;
+.header-title {
+    color: #605b5a;
+    margin: 0;
+    text-align: right;
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .header-img {
+        margin: 0 0 10px 0;
+    }
+
+    .header-title {
+        margin-top: 10px;
+        text-align: center;
+    }
 }
 .container {
     max-width: 900px;
@@ -63,13 +77,22 @@ h2 {
     gap: 1rem;
     margin: 2rem;
 }
-.form-group3 {
-    margin: 2rem;
-}
 .filtro {
     display: flex;
     flex-direction: column;
     margin: 0.5rem;
+}
+@media (max-width: 550px) {
+    .form-group {
+        grid-template-columns: 1fr; /* Cambia a una sola columna */
+    }
+
+    .filtro {
+        margin-bottom: 1rem; /* Añade margen inferior para separar los filtros */
+    }
+}
+.form-group3 {
+    margin: 2rem;
 }
 label {
     font-weight: bold;
