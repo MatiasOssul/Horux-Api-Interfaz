@@ -5,8 +5,8 @@ import dotenv from 'dotenv';
 import crypto from 'crypto';
 const app = express();
 const port = 3000;
-dotenv.config();
 
+dotenv.config();
 const MAIL_EVENT = process.env.MAIL_EVENT;
 const PASSWORD_EVENT = process.env.PASSWORD_EVENT;
 const MAIL_STATUS = process.env.MAIL_STATUS;
@@ -31,7 +31,7 @@ app.post('/iniciarSesion', (req, res) => {
     }
 });
 
-app.post('/consultarEvent', (req, res) => {
+app.post('/fetchEvents', (req, res) => {
     const {sessionId, fechaHoraDesdeFormatted = '2025-01-28T00:46:00', fechaHoraHastaFormatted = '2025-01-28T11:46:00' } = req.body;
 
     const args = {
@@ -64,7 +64,7 @@ app.post('/consultarEvent', (req, res) => {
     });
 });
 
-app.post('/consultarGuardianEstado', (req, res) => {
+app.post('/fetchStatus', (req, res) => {
     const {sessionId} = req.body
 
     const args = {
@@ -272,13 +272,9 @@ app.post('/sendSMS', async (req, res) => {
     }
 });
 
-function isValidSession(sessionId) {
-    return sessions.hasOwnProperty(sessionId);
-}
-
 app.post('/validateSession', (req, res) => {
     const { sessionId } = req.body;
-    if (isValidSession(sessionId)) {
+    if (sessions.hasOwnProperty(sessionId)) {
         res.send({ valid: true });
     } else {
         res.status(401).send({ valid: false });
